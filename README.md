@@ -25,6 +25,7 @@ extra service or unit is needed.
 
 - `NormandieTrainConnecte` — SNCF Normandie train Wi-Fi (TER Nomad / TGV
   Inoui Normandie).
+- `_SNCF_WIFI_INOUI` — SNCF TGV Inoui train Wi-Fi.
 
 ## Use
 

@@ -26,16 +26,23 @@ type Handler struct {
 }
 
 var handlers = map[string]Handler{
-	"NormandieTrainConnecte": {
-		Metered: true,
-		Login:   normandieTrainConnecte,
-	},
+	"NormandieTrainConnecte": {Metered: true, Login: normandieTrainConnecte},
+	"_SNCF_WIFI_INOUI":       {Metered: true, Login: sncfInoui},
 }
 
 func normandieTrainConnecte(ctx context.Context, info NetInfo) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		"https://wifi.normandie.fr/router/api/connection/activate/auto",
-		strings.NewReader("{}"))
+	return sncfActivate(ctx, info, "wifi.normandie.fr", "{}")
+}
+
+func sncfInoui(ctx context.Context, info NetInfo) error {
+	return sncfActivate(ctx, info, "wifi.sncf", "{}")
+}
+
+// sncfActivate POSTs an activation request to the shared VSCT/SNCF portal
+// API used by multiple SNCF train Wi-Fi networks.
+func sncfActivate(ctx context.Context, info NetInfo, host, body string) error {
+	url := "https://" + host + "/router/api/connection/activate/auto"
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(body))
 	if err != nil {
 		return err
 	}
