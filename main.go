@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"os/exec"
 	"strings"
@@ -127,9 +128,10 @@ func firstLine(b []byte) string {
 }
 
 func buildClient(iface string) *http.Client {
+	jar, _ := cookiejar.New(nil)
 	dns := ifaceDNS(iface)
 	if dns == "" {
-		return http.DefaultClient
+		return &http.Client{Timeout: 10 * time.Second, Jar: jar}
 	}
 	resolver := &net.Resolver{
 		PreferGo: true,
@@ -142,6 +144,7 @@ func buildClient(iface string) *http.Client {
 	dialer := &net.Dialer{Timeout: 5 * time.Second, Resolver: resolver}
 	return &http.Client{
 		Timeout: 10 * time.Second,
+		Jar:     jar,
 		Transport: &http.Transport{
 			DialContext: dialer.DialContext,
 		},
